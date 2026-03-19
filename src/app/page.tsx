@@ -23,6 +23,10 @@ export default function Home() {
   const [justGeneratedLink, setJustGeneratedLink] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   
+  // Delete State
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -72,6 +76,10 @@ export default function Home() {
       });
       const data = await res.json();
       
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to upload image from backend");
+      }
+      
       if (data.success) {
         setItems([data.item, ...items]);
         setJustGeneratedLink(data.shareUrl);
@@ -83,23 +91,44 @@ export default function Home() {
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to upload image");
+      alert((error as Error).message || "Failed to upload image");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this shared link?")) return;
+  const handleDelete = (id: string) => {
+    setItemToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    setIsDeleting(true);
     
     try {
-      await fetch(`/api/items/${id}`, { method: "DELETE" });
-      setItems(items.filter((item) => item.id !== id));
-      if (justGeneratedLink?.includes(id)) {
+      const res = await fetch(`/api/items/${itemToDelete}`, { method: "DELETE" });
+      
+      if (!res.ok) {
+        let errorMsg = "Failed to delete item";
+        try {
+          const errData = await res.json();
+          errorMsg = errData.error || errorMsg;
+        } catch {}
+        alert(errorMsg);
+        setIsDeleting(false);
+        return;
+      }
+      
+      setItems(items.filter((item) => item.id !== itemToDelete));
+      if (justGeneratedLink?.includes(itemToDelete)) {
         setJustGeneratedLink(null);
       }
+      setItemToDelete(null);
     } catch (error) {
-      console.error(error);
+      console.error("Delete Error:", error);
+      alert("Failed to connect or delete item");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -348,6 +377,40 @@ export default function Home() {
 
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {itemToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-2">
+                <Trash className="w-6 h-6 text-red-500" aria-hidden="true" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Delete Share Link</h3>
+              <p className="text-neutral-400 text-sm">
+                Are you sure you want to delete this link? This action cannot be undone and the Open Graph preview will no longer work.
+              </p>
+            </div>
+            <div className="flex gap-3 mt-8">
+              <button
+                disabled={isDeleting}
+                onClick={() => setItemToDelete(null)}
+                className="flex-1 px-4 py-2.5 rounded-xl font-semibold bg-neutral-800 text-white hover:bg-neutral-700 transition-colors focus:ring-1 focus:ring-offset-1 focus:ring-offset-neutral-900 focus:ring-neutral-500 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isDeleting}
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2.5 rounded-xl font-semibold bg-red-600 text-white hover:bg-red-500 transition-colors focus:ring-1 focus:ring-offset-1 focus:ring-offset-neutral-900 focus:ring-red-500 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
