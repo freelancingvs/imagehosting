@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Open Graph Link Generator",
-  description: "Simple full-stack web app for creating and managing OG share links for images.",
+  title: "ImageHost",
+  description: "Upload images and generate Open Graph share links instantly.",
 };
 
 export default function RootLayout({

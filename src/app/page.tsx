@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
-import { Copy, PlusCircle, Trash, Edit2, UploadCloud, CheckCircle2, Image as ImageIcon } from "lucide-react";
+import { Copy, PlusCircle, Trash, Edit2, UploadCloud, CheckCircle2 } from "lucide-react";
 
 interface Item {
   id: string;
@@ -172,11 +172,30 @@ export default function Home() {
       <div className="max-w-7xl mx-auto space-y-8">
         
         <header className="flex flex-col sm:flex-row items-start sm:items-center gap-4 border-b border-neutral-800 pb-6">
-          <div className="bg-indigo-500/10 p-3 rounded-xl">
-            <ImageIcon className="w-8 h-8 text-indigo-400" aria-hidden="true" />
+          <div className="shrink-0">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="ImageHost logo">
+              <rect width="48" height="48" rx="18" fill="url(#ih-gradient)" />
+              <text
+                x="50%"
+                y="52%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fill="white"
+                fontSize="17"
+                fontWeight="700"
+                fontFamily="system-ui, -apple-system, sans-serif"
+                letterSpacing="0.5"
+              >IH</text>
+              <defs>
+                <linearGradient id="ih-gradient" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#6366f1" />
+                  <stop offset="1" stopColor="#4f46e5" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Open Graph Link Generator
+            ImageHost
           </h1>
         </header>
 
@@ -291,7 +310,10 @@ export default function Home() {
             ) : items.length === 0 ? (
               <div className="bg-neutral-900/50 border-2 border-dashed border-neutral-800 rounded-2xl p-8 sm:p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
                 <div className="bg-neutral-800 p-5 rounded-full mb-5">
-                  <ImageIcon className="w-10 h-10 text-neutral-500" aria-hidden="true" />
+                  <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect width="48" height="48" rx="18" fill="#404040" />
+                    <text x="50%" y="52%" dominantBaseline="middle" textAnchor="middle" fill="#737373" fontSize="17" fontWeight="700" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="0.5">IH</text>
+                  </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">No images yet</h3>
                 <p className="text-neutral-400 max-w-sm">Upload your first image on the left panel to generate an Open Graph share link.</p>
