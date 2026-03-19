@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { Copy, PlusCircle, Trash, Edit2, UploadCloud, CheckCircle2, Image as ImageIcon } from "lucide-react";
 
 interface Item {
@@ -18,6 +18,7 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewURL, setPreviewURL] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [justGeneratedLink, setJustGeneratedLink] = useState<string | null>(null);
@@ -81,13 +82,15 @@ export default function Home() {
       }
       
       if (data.success) {
-        setItems([data.item, ...items]);
+        // Re-fetch from DB to ensure we have the latest state (avoids Vercel KV race conditions)
+        await fetchItems();
         setJustGeneratedLink(data.shareUrl);
-        // Reset form
+        // Reset form including native file input
         setFile(null);
         setPreviewURL(null);
         setTitle("");
         setDescription("");
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     } catch (error) {
       console.error(error);
@@ -119,11 +122,12 @@ export default function Home() {
         return;
       }
       
-      setItems(items.filter((item) => item.id !== itemToDelete));
       if (justGeneratedLink?.includes(itemToDelete)) {
         setJustGeneratedLink(null);
       }
       setItemToDelete(null);
+      // Re-fetch from DB to ensure we have the latest state
+      await fetchItems();
     } catch (error) {
       console.error("Delete Error:", error);
       alert("Failed to connect or delete item");
@@ -148,8 +152,9 @@ export default function Home() {
       const data = await res.json();
       
       if (data.success) {
-        setItems(items.map((i) => (i.id === id ? data.item : i)));
         setEditingId(null);
+        // Re-fetch to sync state from DB
+        await fetchItems();
       }
     } catch (error) {
       console.error(error);
@@ -199,7 +204,7 @@ export default function Home() {
                         <span className="text-sm mt-2 text-neutral-500">SVG, PNG, JPG or GIF</span>
                       </div>
                     )}
-                    <input id="image-upload" type="file" className="sr-only" accept="image/*" onChange={handleFileChange} required aria-labelledby="image-upload-label" />
+                    <input ref={fileInputRef} id="image-upload" type="file" className="sr-only" accept="image/*" onChange={handleFileChange} required aria-labelledby="image-upload-label" />
                   </label>
                 </div>
 
