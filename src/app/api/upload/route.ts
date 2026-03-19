@@ -24,6 +24,14 @@ export async function POST(req: NextRequest) {
       const blob = await put(file.name, file, { access: 'public' });
       imageUrl = blob.url;
     } else {
+      // If deployed to Vercel without blob token, fail gracefully
+      if (process.env.VERCEL || process.env.VERCEL_ENV || process.env.VERCEL_URL) {
+        return NextResponse.json(
+          { error: 'Vercel Blob is required in production. Please add BLOB_READ_WRITE_TOKEN to your Vercel Environment Variables.' },
+          { status: 500 }
+        );
+      }
+      
       // Local fallback if Vercel Blob is not configured
       const buffer = Buffer.from(await file.arrayBuffer());
       const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;

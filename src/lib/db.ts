@@ -23,6 +23,9 @@ async function getLocalData(): Promise<Item[]> {
 }
 
 async function saveLocalData(data: Item[]) {
+  if (process.env.VERCEL || process.env.VERCEL_ENV || process.env.VERCEL_URL) {
+    throw new Error('Vercel KV is required in production. Please add KV_REST_API_URL and KV_REST_API_TOKEN to your Vercel Environment Variables.');
+  }
   await fs.writeFile(localDbPath, JSON.stringify(data, null, 2), 'utf8');
 }
 
