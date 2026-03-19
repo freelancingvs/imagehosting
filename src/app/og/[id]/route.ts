@@ -99,69 +99,106 @@ export async function GET(
       color: #f5f5f5;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem 1rem;
+      padding: 1.5rem 1rem;
     }
+
+    /* ── Mobile: image left, text right ── */
     .card {
       background: #171717;
       border: 1px solid #262626;
       border-radius: 16px;
       overflow: hidden;
-      max-width: 600px;
       width: 100%;
+      max-width: 480px;
       box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 0;
     }
-    .card img {
+    .img-wrap {
+      flex: 0 0 40%;
+      max-width: 40%;
+      overflow: hidden;
+    }
+    .img-wrap img {
       width: 100%;
-      height: 340px;
+      height: 100%;
       object-fit: cover;
       display: block;
     }
-    .content { padding: 1.75rem; }
+    .content {
+      flex: 1;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.5rem;
+    }
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
       background: #6366f1;
       color: white;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 20px;
-      margin-bottom: 1rem;
+      width: fit-content;
     }
-    h1 { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 0.75rem; }
-    p { color: #a3a3a3; line-height: 1.6; margin-bottom: 1.5rem; font-size: 0.95rem; }
-    .btn {
-      display: inline-block;
-      background: #6366f1;
-      color: white;
-      text-decoration: none;
-      padding: 0.65rem 1.4rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: background 0.2s;
+    h1 { font-size: 1rem; font-weight: 700; color: #fff; line-height: 1.3; }
+    p { color: #a3a3a3; line-height: 1.5; font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* ── Desktop: stacked, centered, full image ── */
+    @media (min-width: 640px) {
+      body { padding: 2.5rem 1rem; align-items: flex-start; }
+      .card {
+        max-width: 680px;
+        flex-direction: column;
+        margin: 0 auto;
+      }
+      .img-wrap {
+        flex: none;
+        max-width: 100%;
+        width: 100%;
+      }
+      .img-wrap img {
+        width: 100%;
+        height: auto;
+        max-height: 80vh;
+        object-fit: contain;
+        background: #000;
+      }
+      .content {
+        padding: 2rem;
+        align-items: center;
+        text-align: center;
+        gap: 0.75rem;
+      }
+      .badge { margin: 0 auto; }
+      h1 { font-size: 1.5rem; }
+      p { font-size: 0.95rem; -webkit-line-clamp: unset; overflow: visible; }
     }
-    .btn:hover { background: #4f46e5; }
   </style>
 </head>
 <body>
   <div class="card">
-    <img src="${imageUrl}" alt="${title}" />
+    <div class="img-wrap">
+      <img src="${imageUrl}" alt="${title}" />
+    </div>
     <div class="content">
       <div class="badge">ImageHost</div>
       <h1>${title}</h1>
       ${description ? `<p>${description}</p>` : ''}
-      <a href="/" class="btn">Open ImageHost</a>
     </div>
   </div>
 </body>
 </html>`;
+
 
     return new NextResponse(html, {
       status: 200,

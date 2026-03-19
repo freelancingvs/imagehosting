@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent } from "react";
-import { Copy, PlusCircle, Trash, Edit2, UploadCloud, CheckCircle2 } from "lucide-react";
+import { Copy, PlusCircle, Trash, Edit2, UploadCloud, CheckCircle2, Share2 } from "lucide-react";
 
 interface Item {
   id: string;
@@ -165,6 +165,23 @@ export default function Home() {
     navigator.clipboard.writeText(url);
     setCopiedLink(url);
     setTimeout(() => setCopiedLink(null), 2000);
+  };
+
+  const handleShare = async (item: Item, url: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: item.title,
+          text: item.description || item.title,
+          url,
+        });
+      } catch {
+        // user cancelled — do nothing
+      }
+    } else {
+      // Desktop fallback: just copy
+      copyToClipboard(url);
+    }
   };
 
   return (
@@ -389,17 +406,26 @@ export default function Home() {
                             <p className="text-sm text-neutral-300 line-clamp-2 mb-6 flex-1 leading-relaxed">{item.description}</p>
                             
                             <div className="flex items-center justify-between mt-auto pt-5 border-t border-neutral-800/80">
-                              <button
-                                onClick={() => copyToClipboard(itemUrl)}
-                                aria-label={`Copy link for ${item.title}`}
-                                className="flex items-center justify-center gap-2 text-sm font-medium bg-neutral-800 hover:bg-neutral-700 text-neutral-200 py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-indigo-500 flex-1 sm:flex-none"
-                              >
-                                {copiedLink === itemUrl ? (
-                                  <><CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true"/> <span className="text-emerald-400">Copied!</span></>
-                                ) : (
-                                  <><Copy className="w-4 h-4" aria-hidden="true"/> Copy Link</>
-                                )}
-                              </button>
+                              <div className="flex items-center gap-2 flex-1">
+                                <button
+                                  onClick={() => handleShare(item, itemUrl)}
+                                  aria-label={`Share ${item.title}`}
+                                  className="flex items-center justify-center gap-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-indigo-500"
+                                >
+                                  <Share2 className="w-4 h-4" aria-hidden="true" /> Share
+                                </button>
+                                <button
+                                  onClick={() => copyToClipboard(itemUrl)}
+                                  aria-label={`Copy link for ${item.title}`}
+                                  className="flex items-center justify-center gap-2 text-sm font-medium bg-neutral-800 hover:bg-neutral-700 text-neutral-200 py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-indigo-500"
+                                >
+                                  {copiedLink === itemUrl ? (
+                                    <><CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true"/> <span className="text-emerald-400">Copied!</span></>
+                                  ) : (
+                                    <><Copy className="w-4 h-4" aria-hidden="true"/> Copy</>
+                                  )}
+                                </button>
+                              </div>
                               
                               <div className="flex items-center gap-2 ml-4">
                                 <button aria-label={`Edit ${item.title}`} onClick={() => startEdit(item)} className="p-2 text-neutral-400 bg-neutral-900 hover:bg-neutral-800 hover:text-indigo-400 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-indigo-500">
