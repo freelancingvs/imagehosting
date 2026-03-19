@@ -284,6 +284,9 @@ export default function Home() {
                       {copiedLink === justGeneratedLink ? <CheckCircle2 className="w-5 h-5" aria-hidden="true" /> : <Copy className="w-5 h-5" aria-hidden="true" />}
                     </button>
                   </div>
+                  <p className="mt-3 text-xs text-neutral-500 leading-relaxed">
+                    💡 <span className="text-neutral-400">For WhatsApp preview:</span> copy the link and <strong className="text-neutral-300">paste it manually</strong> in your chat — WhatsApp only shows image previews for pasted links, not shared ones.
+                  </p>
                 </div>
               )}
             </div>
@@ -392,7 +395,7 @@ export default function Home() {
                                 className="flex items-center justify-center gap-2 text-sm font-medium bg-neutral-800 hover:bg-neutral-700 text-neutral-200 py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 focus:ring-indigo-500 flex-1 sm:flex-none"
                               >
                                 {copiedLink === itemUrl ? (
-                                  <><CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true"/> <span className="text-emerald-400">Copied</span></>
+                                  <><CheckCircle2 className="w-4 h-4 text-emerald-400" aria-hidden="true"/> <span className="text-emerald-400">Copied!</span></>
                                 ) : (
                                   <><Copy className="w-4 h-4" aria-hidden="true"/> Copy Link</>
                                 )}
