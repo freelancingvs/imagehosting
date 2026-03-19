@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const blob = await put(file.name, buffer, { access: 'public', contentType: file.type });
+      const blob = await put(file.name, buffer, { access: 'public', contentType: file.type, addRandomSuffix: true });
       imageUrl = blob.url;
     } else {
       // If deployed to Vercel without blob token, fail gracefully
