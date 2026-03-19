@@ -12,6 +12,12 @@ function esc(str: string): string {
     .replace(/>/g, '&gt;');
 }
 
+/** Truncate a string at word boundary and add ellipsis if needed */
+function truncate(str: string, max: number): string {
+  if (str.length <= max) return str;
+  return str.slice(0, max).replace(/\s+\S*$/, '') + '…';
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -43,38 +49,47 @@ export async function GET(
       imageUrl = imageUrl.replace(/^http:\/\//i, 'https://');
     }
 
+    // Escape raw strings for use inside HTML body
     const title = esc(item.title);
     const description = esc(item.description || '');
+    // Truncated versions for meta tags (strict length limits for social crawlers)
+    const metaTitle = esc(truncate(item.title, 60));
+    const metaDescription = esc(truncate(item.description || '', 155));
     const siteName = 'ImageHost';
+
+    // Inline SVG favicon as a data URI (fixes blurry 16x16 favicon warning)
+    const faviconSvg = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='18' fill='%236366f1'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='17' font-weight='700' font-family='system-ui'>IH</text></svg>`;
 
     const html = `<!DOCTYPE html>
 <html lang="en" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${title}</title>
-  <meta name="description" content="${description}" />
+  <title>${metaTitle}</title>
+  <meta name="description" content="${metaDescription}" />
+  <meta name="author" content="${siteName}" />
+  <link rel="icon" href="${faviconSvg}" type="image/svg+xml" />
 
   <!-- Open Graph / Facebook / WhatsApp -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="${siteName}" />
   <meta property="og:url" content="${pageUrl}" />
-  <meta property="og:title" content="${title}" />
-  <meta property="og:description" content="${description}" />
+  <meta property="og:title" content="${metaTitle}" />
+  <meta property="og:description" content="${metaDescription}" />
   <meta property="og:image" content="${imageUrl}" />
   <meta property="og:image:secure_url" content="${imageUrl}" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="${title}" />
+  <meta property="og:image:alt" content="${metaTitle}" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="${siteName}" />
-  <meta name="twitter:title" content="${title}" />
-  <meta name="twitter:description" content="${description}" />
+  <meta name="twitter:title" content="${metaTitle}" />
+  <meta name="twitter:description" content="${metaDescription}" />
   <meta name="twitter:image" content="${imageUrl}" />
-  <meta name="twitter:image:alt" content="${title}" />
+  <meta name="twitter:image:alt" content="${metaTitle}" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
