@@ -328,8 +328,23 @@ export default function Home() {
                   
                   return (
                     <div key={item.id} className="bg-neutral-900 rounded-2xl shadow-xl border border-neutral-800 overflow-hidden flex flex-col group hover:border-neutral-700 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-900/10">
-                      <div className="h-48 sm:h-56 relative overflow-hidden bg-neutral-800">
-                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="h-48 sm:h-56 relative overflow-hidden bg-neutral-800 flex items-center justify-center">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent && !parent.querySelector('.broken-img-placeholder')) {
+                              const placeholder = document.createElement('div');
+                              placeholder.className = 'broken-img-placeholder flex flex-col items-center justify-center w-full h-full gap-2 text-neutral-600';
+                              placeholder.innerHTML = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><span style="font-size:0.75rem">Image unavailable</span>`;
+                              parent.appendChild(placeholder);
+                            }
+                          }}
+                        />
                       </div>
                       
                       <div className="p-5 sm:p-6 flex-1 flex flex-col">
